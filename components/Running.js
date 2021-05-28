@@ -86,7 +86,7 @@ const Running = (props) => {
             console.log("GPS service not enabled")
             Alert.alert(
                 "GPS Location Service",
-                "Run function requires GPS Location Service enabled. Please enable GPS Location Service",
+                "Run function requires GPS Location Service enabled. Please enable GPS Location Service and try again.",
                 [ { text:"Understood", onPress: () => {console.log("Alert closed")} } ]
             )
             setStatus(1)
