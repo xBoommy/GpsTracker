@@ -5,11 +5,17 @@ import * as geolib from 'geolib';
 
 
 const Running = (props) => {
-    // App State
+
+    /*                  /
+    /   States & Const  /
+    /                  */
+
+    /* [App Status] */
     const status = props.status;
     const setStatus = props.setStatus;
     const [message, setMessage] = useState('')
 
+    /* [Function States] */
     const goalDistance = props.goalDistance;
 
     const [startLatitude, setStartLatitude] = useState(0)
@@ -21,21 +27,11 @@ const Running = (props) => {
     const [currentLongitude, setCurrentLongitude] = useState (startLongitude);
     const [currentDistance, setCurrentDistance] = useState (0);
 
+    /*              /
+    /   Functions   /
+    /              */
 
-    const getCurrentLocation = async() => {
-        try {
-            const { coords: {latitude, longitude} } = await Location.getCurrentPositionAsync()
-            setStartLatitude(latitude)
-            setStartLongitude(longitude)
-            console.log('Getting current Location')
-        } catch(error) {
-            console.log(error)
-        }
-        
-    }
-
-
-    // Toggle tracking on
+    /* [ON GPS Subscription/Tracking] */
     const [promise, setPromise] = useState({});
     const subscribePosition = async() => {
         const options = {accuracy: 6,  timeInterval: 1000, distanceInterval: 3};
@@ -61,13 +57,8 @@ const Running = (props) => {
         }
     }
 
-    // Toggle tracking off (NOT WORKING)
-    const unsubscribePosition = () => {
-        promise.remove()
-        console.log('GPS Tracking off')
-    }
 
-    // Callback function on each update of position
+    /* [Callback function while subscription update] */
     const onPositionChange = (position) => {
         // console.log(position.timestamp);
         // console.log(position.coords.latitude);
@@ -75,10 +66,40 @@ const Running = (props) => {
         setPositions((prevPositons) => [...prevPositons, position]);
     }
 
+
+    /* [OFF GPS Subscription/Tracking] */
+    const unsubscribePosition = () => {
+        promise.remove()
+        console.log('GPS Tracking off')
+    }
+
+    /* [Get current location - Initialise before subscription / prompter for GPS Location] */
+    const getCurrentLocation = async() => {
+        try {
+            const { coords: {latitude, longitude} } = await Location.getCurrentPositionAsync()
+            setStartLatitude(latitude)
+            setStartLongitude(longitude)
+            console.log('Getting current Location')
+            setStatus(2)
+        } catch(error) {
+            console.log(error)
+            console.log("GPS service not enabled")
+            Alert.alert(
+                "GPS Location Service",
+                "Run function requires GPS Location Service enabled. Please enable GPS Location Service",
+                [ { text:"Understood", onPress: () => {console.log("Alert closed")} } ]
+            )
+            setStatus(1)
+        }
+    }
+
+    /* [Completed Distance RESET] */
     const resetDistance = () => {
         setCurrentDistance(0);
     }
 
+    
+    /* [Distance Subscription update] */
     const distanceUpdate = () => {
         // console.log(positions)
         if (positions.length === 0) {
@@ -122,65 +143,70 @@ const Running = (props) => {
         }
     }
 
+    /* [GPS Subcription countdown] */
+    const subcriptionCountdown = () => {
+        /* 0 second */
+        getCurrentLocation()
+        setMessage('Starting in 5')
+        console.log(5)
+    
+        /* 1 second */
+        setTimeout( () => {
+            setMessage('Starting in 4')
+            getCurrentLocation()
+            console.log(4)
+        }, 1000)
+    
+        /* 2 second */
+        setTimeout( () => {
+            setMessage('Starting in 3')
+            getCurrentLocation()
+            console.log(3)
+        }, 2000)
+        
+        /* 3 second */
+        setTimeout( () => {
+            setMessage('Starting in 2')
+            getCurrentLocation()
+            console.log(2)
+        }, 3000)
+    
+        /* 4 second */
+        setTimeout( () => {
+            setMessage('Starting in 1')
+            console.log(1)
+        }, 4000)
+    
+        /* 5 second */
+        setTimeout( () => {
+            setMessage('START')
+            subscribePosition()
+        }, 5000)
+    }
+
+
+    /*               /
+    /   Re-renders   /
+    /               */
+
+    /* [Completed Distance Render]
+    This render is triggered upon a change in positioning while subscription is on 
+    OR when first initiating GPS service */
     useEffect( 
         distanceUpdate
-        , [positions, startLatitude, startLongitude]
-    );
-
+        , [positions, startLatitude, startLongitude] );
+    
+    /* [App Status Render] 
+    This render is triggered upon a change in app status (Refer to GPS.js for status information) */
     useEffect( () => {
-        if (status === 2) {
+        if (status === 6) {
             getCurrentLocation()
-            // Countdown
-            setMessage('starting in 10')
-
-            setTimeout( () => {
-                setMessage('starting in 9')
-            }, 1000)
-            
-            setTimeout( () => {
-                setMessage('starting in 8')
-                getCurrentLocation()
-            }, 2000)
-
-            setTimeout( () => {
-                setMessage('starting in 7')
-                getCurrentLocation()
-            }, 3000)
-
-            setTimeout( () => {
-                setMessage('starting in 6')
-            }, 4000)
-
-            setTimeout( () => {
-                setMessage('starting in 5')
-            }, 5000)
-
-            setTimeout( () => {
-                setMessage('starting in 4')
-            }, 6000)
-
-            setTimeout( () => {
-                setMessage('starting in 3')
-            }, 7000)
-
-            setTimeout( () => {
-                setMessage('starting in 2')
-            }, 8000)
-
-            setTimeout( () => {
-                setMessage('starting in 1')
-            }, 9000)
-
-            setTimeout( () => {
-                setMessage('START')
-            }, 10000)
-
-            //Start
-            
-            setTimeout( () => {
-                subscribePosition()
-            }, 10000)
         }
+
+        if (status === 2) {
+            subcriptionCountdown()
+        }
+        
         if (status === 3) {
             unsubscribePosition()
             setMessage('PAUSED')
@@ -192,13 +218,17 @@ const Running = (props) => {
             setMessage('STOPPED')
             setTimeout( () => {
                 setMessage('')
-            }, 5000)
-
+            }, 5000 )
         }
-    }, [status])
+    }, [status] );
 
-    useEffect( () => {}, [message])
+    /* [Display Message Render] 
+    This render is trigger upon a new message available, refresh display to update*/
+    useEffect( () => {}, [message] );
 
+    /*          /
+    /   Format  /
+    /          */
     return (
         <SafeAreaView style = {styles.componentContainer}>
 
@@ -218,7 +248,7 @@ const Running = (props) => {
 
             {/* Button Component */}
             <View style = {styles.buttonComponent}>
-                <TouchableOpacity style = {styles.button} onPress = {() => setStatus(2)}>
+                <TouchableOpacity style = {styles.button} onPress = {() => setStatus(6)}>
                     <Text>Start</Text>
                 </TouchableOpacity>
                 
@@ -243,8 +273,6 @@ const Running = (props) => {
                 </TouchableOpacity>
             </View>
 
-            
-            
         </SafeAreaView>
     );
 };

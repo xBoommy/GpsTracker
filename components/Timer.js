@@ -52,11 +52,12 @@ const Timer = (props) => {
         if (status == 2) {
             setTimeout( () => {
                 startTimer()
-            }, 10000)
-            
-        } else if (status == 3) {
+            }, 5000)
+        }  
+        if (status == 3) {
             stopTimer()
-        } else if (status == 4) {
+        } 
+        if (status == 4) {
             stopTimer()
             resetTimer()
         }

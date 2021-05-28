@@ -87,6 +87,10 @@ const GPS = () => {
       setStatus(0)
       console.log('Status : 5 - App Start')
     }
+    if (status === 6) {
+      console.log('Status : 6 - Checking Services')
+      setStatusMessage('6 - Checking Services')
+    }
    }, [status] )
 
   return (
