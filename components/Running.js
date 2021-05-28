@@ -5,16 +5,35 @@ import * as geolib from 'geolib';
 
 
 const Running = (props) => {
-    const latitude = props.latitude;
-    const longitude = props.longitude;
+    // App State
+    const status = props.status;
+    const setStatus = props.setStatus;
+    const [message, setMessage] = useState('')
+
     const goalDistance = props.goalDistance;
 
+    const [startLatitude, setStartLatitude] = useState(0)
+    const [startLongitude, setStartLongitude] = useState(0)
     const [positions, setPositions] = useState( () => { return [] } );
-    const [previousLatitude, setPreviousLatitude] = useState (latitude);
-    const [previousLongitude, setPreviousLongitude] = useState (longitude);
-    const [currentLatitude, setCurrentLatitude] = useState (latitude);
-    const [currentLongitude, setCurrentLongitude] = useState (longitude);
+    const [previousLatitude, setPreviousLatitude] = useState (startLatitude);
+    const [previousLongitude, setPreviousLongitude] = useState (startLongitude);
+    const [currentLatitude, setCurrentLatitude] = useState (startLatitude);
+    const [currentLongitude, setCurrentLongitude] = useState (startLongitude);
     const [currentDistance, setCurrentDistance] = useState (0);
+
+
+    const getCurrentLocation = async() => {
+        try {
+            const { coords: {latitude, longitude} } = await Location.getCurrentPositionAsync()
+            setStartLatitude(latitude)
+            setStartLongitude(longitude)
+            console.log('Getting current Location')
+        } catch(error) {
+            console.log(error)
+        }
+        
+    }
+
 
     // Toggle tracking on
     const [promise, setPromise] = useState({});
@@ -32,19 +51,20 @@ const Running = (props) => {
             - distanceInterval (number) — Receive updates only when the location has changed by at least this distance in meters.
             - mayShowUserSettingsDialog (boolean) — (Android only) Specifies whether to ask the user to turn on improved accuracy location mode which uses Wi-Fi, cell networks and GPS sensor. The dialog can be shown only when the location mode is set to Device only. Defaults to true.
         */
-
-        try {
-            console.log('GPS on')
-            setPromise( await Location.watchPositionAsync( options, onPositionChange) )
-        } catch (error) {
-            console.log(error);
+        if ( Location.hasServicesEnabledAsync() ){
+            try {
+                setPromise( await Location.watchPositionAsync( options, onPositionChange) )
+                console.log('GPS Tracking on')
+            } catch (error) {
+                console.log(error);
+            }
         }
     }
 
     // Toggle tracking off (NOT WORKING)
     const unsubscribePosition = () => {
         promise.remove()
-        console.log('GPS off')
+        console.log('GPS Tracking off')
     }
 
     // Callback function on each update of position
@@ -59,79 +79,167 @@ const Running = (props) => {
         setCurrentDistance(0);
     }
 
-    useEffect( 
-        () => {
-            // console.log(positions)
-            if (positions.length === 0) {
-                //Set Current Position to Starting Position at first
-                setPreviousLatitude(latitude);
-                setPreviousLongitude(longitude);
-                setCurrentLatitude(latitude);
-                setCurrentLongitude(longitude);
-            } else {
-                console.log('updating..........');
+    const distanceUpdate = () => {
+        // console.log(positions)
+        if (positions.length === 0) {
+            //Set Current Position to Starting Position at first
+            setPreviousLatitude(startLatitude);
+            setPreviousLongitude(startLongitude);
+            setCurrentLatitude(startLatitude);
+            setCurrentLongitude(startLongitude);
+        } else {
+            console.log('Position updating..........');
 
-                if (positions.length > 1) {
-                    setPreviousLatitude( positions[positions.length -2].coords.latitude );
-                    setPreviousLongitude( positions[positions.length -2].coords.longitude );
-                }
-                const prevPos = { latitude:previousLatitude, longitude:previousLongitude}
-                
-                setCurrentLatitude( positions[positions.length -1].coords.latitude );
-                setCurrentLongitude( positions[positions.length -1].coords.longitude );
-                const currPos = { latitude:currentLatitude, longitude:currentLongitude}
-               
-                console.log(positions);
-                console.log('prevPos')
-                console.log(prevPos)
-                console.log('currPos')
-                console.log(currPos)
-
-                let distGain = geolib.getDistance (prevPos, currPos, 0.1)
-                console.log('distGain')
-                console.log(distGain)
-
-                /* Limit orrection is to account for GPS floating
-                    (number): set minimum distance gain in order to record movement
-                    in terms of meters
-                */
-                const lowerLimit = 3;
-                const lowerUpper= 20;
-                if ( (lowerLimit < distGain) && (distGain < lowerUpper) ) {
-                    setCurrentDistance((prevCurrentDistance) => (Math.round( (prevCurrentDistance + distGain)*100 ))  / 100)
-                }
+            if (positions.length > 1) {
+                setPreviousLatitude( positions[positions.length -2].coords.latitude );
+                setPreviousLongitude( positions[positions.length -2].coords.longitude );
             }
-        }, [positions, latitude, longitude ]
+            const prevPos = { latitude:previousLatitude, longitude:previousLongitude}
+            
+            setCurrentLatitude( positions[positions.length -1].coords.latitude );
+            setCurrentLongitude( positions[positions.length -1].coords.longitude );
+            const currPos = { latitude:currentLatitude, longitude:currentLongitude}
+           
+            // console.log(positions);
+            console.log('prevPos')
+            console.log(prevPos)
+            console.log('currPos')
+            console.log(currPos)
+
+            let distGain = geolib.getDistance (prevPos, currPos, 0.1)
+            console.log('Distance Gained')
+            console.log(distGain)
+
+            /* Limit correction is to account for GPS floating
+                (number): set minimum distance gain in order to record movement
+                in terms of meters
+            */
+            const lowerLimit = 3;
+            const lowerUpper= 20;
+            if ( (lowerLimit < distGain) && (distGain < lowerUpper) ) {
+                setCurrentDistance((prevCurrentDistance) => (Math.round( (prevCurrentDistance + distGain)*100 ))  / 100)
+            }
+        }
+    }
+
+    useEffect( 
+        distanceUpdate
+        , [positions, startLatitude, startLongitude]
     );
 
+    useEffect( () => {
+        if (status === 2) {
+            getCurrentLocation()
+            // Countdown
+            setMessage('starting in 10')
+
+            setTimeout( () => {
+                setMessage('starting in 9')
+            }, 1000)
+            
+            setTimeout( () => {
+                setMessage('starting in 8')
+                getCurrentLocation()
+            }, 2000)
+
+            setTimeout( () => {
+                setMessage('starting in 7')
+                getCurrentLocation()
+            }, 3000)
+
+            setTimeout( () => {
+                setMessage('starting in 6')
+            }, 4000)
+
+            setTimeout( () => {
+                setMessage('starting in 5')
+            }, 5000)
+
+            setTimeout( () => {
+                setMessage('starting in 4')
+            }, 6000)
+
+            setTimeout( () => {
+                setMessage('starting in 3')
+            }, 7000)
+
+            setTimeout( () => {
+                setMessage('starting in 2')
+            }, 8000)
+
+            setTimeout( () => {
+                setMessage('starting in 1')
+            }, 9000)
+
+            setTimeout( () => {
+                setMessage('START')
+            }, 10000)
+
+            //Start
+            
+            setTimeout( () => {
+                subscribePosition()
+            }, 10000)
+        }
+        if (status === 3) {
+            unsubscribePosition()
+            setMessage('PAUSED')
+        }
+        if (status === 4) {
+            unsubscribePosition()
+            resetDistance()
+            setStatus(1)
+            setMessage('STOPPED')
+            setTimeout( () => {
+                setMessage('')
+            }, 5000)
+
+        }
+    }, [status])
+
+    useEffect( () => {}, [message])
 
     return (
-        <SafeAreaView>
-            <View style = {styles.container}>
-                <TouchableOpacity style = {styles.button} onPress = {subscribePosition}>
-                    <Text>On</Text>
-                </TouchableOpacity>
+        <SafeAreaView style = {styles.componentContainer}>
 
-                <View>
-                    <Text>previous lat: {previousLatitude}</Text>
-                    <Text>previous long: {previousLongitude}</Text>
-                    <Text>current lat: {currentLatitude}</Text>
-                    <Text>current long: {currentLongitude}</Text>
-                </View>
+            {/* Header */}
+            <View style = {styles.header}>
+                <Text style = {styles.headerText}>Position</Text>
+            </View>
+
+            {/* Position Display */}
+            <View style = {styles.positionDisplay}>
+                    <Text>Prev Latitude: {previousLatitude}</Text>
+                    <Text>Prev Longitude: {previousLongitude}</Text>
+                    <Text></Text>
+                    <Text>Curr Latitude: {currentLatitude}</Text>
+                    <Text>Curr Longitude: {currentLongitude}</Text>
+            </View>
+
+            {/* Button Component */}
+            <View style = {styles.buttonComponent}>
+                <TouchableOpacity style = {styles.button} onPress = {() => setStatus(2)}>
+                    <Text>Start</Text>
+                </TouchableOpacity>
                 
-                <TouchableOpacity style = {styles.button} onPress = {unsubscribePosition}>
-                    <Text>Off</Text>
+                <TouchableOpacity 
+                style = {styles.button} onPress = {() => setStatus(3)}>
+                    <Text>Pause</Text>
                 </TouchableOpacity>
             </View>
-            <View>
+
+            {/* Distance Indicator */}
+            <View style = {styles.distanceIndicator}>
+                <Text>{message}</Text>
                 <Text style = {styles.complete}>
                     Completed: {currentDistance}m/{goalDistance}m
                 </Text>
             </View>
 
+            {/* Reset/Stop Button */}
             <View style = {styles.resetcontainer}>
-                <TouchableOpacity style = {styles.resetbutton} onPress = {resetDistance}>
-                        <Text>Reset</Text>
+                <TouchableOpacity style = {styles.button} onPress = {() => setStatus(4)}>
+                        <Text>Stop</Text>
                 </TouchableOpacity>
             </View>
 
@@ -142,10 +250,23 @@ const Running = (props) => {
 };
 
 const styles = StyleSheet.create({
-    container: {
+    componentContainer: {
+        // backgroundColor: 'purple',
+        alignItems: 'center',
+    },
+    header: {
+        padding: 10,
+    },
+    headerText: {
+        fontWeight: 'bold',
+    },
+    positionDisplay: {
+        // backgroundColor: 'orange',
+    },
+    buttonComponent: {
+        // backgroundColor: 'gray',
         padding: 20,
-        width: 350,
-        backgroundColor: 'gray',
+        width: 200,
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'flex-start',
@@ -154,7 +275,13 @@ const styles = StyleSheet.create({
         backgroundColor: 'white',
         borderColor: 'black',
         borderWidth: 1,
-        padding: 20,
+        borderRadius: 5,
+        padding: 10,
+    },
+    distanceIndicator: {
+        // backgroundColor: 'green',
+        padding: 10,
+        alignItems: 'center',
     },
     resetbutton: {
         backgroundColor: 'white',

@@ -1,7 +1,10 @@
 import React, {useState, useEffect} from 'react';
 import { SafeAreaView, StyleSheet, Text, View, TouchableOpacity, TextInput, Alert } from 'react-native';
 
-const Timer = () => {
+const Timer = (props) => {
+    // App State
+    const status = props.status;
+
     const [time, setTime] = useState ({hours:0, minutes:0, seconds:0});
     const [hour, setHour] = useState(0);
     const [minute, setMinute] = useState(0);
@@ -37,22 +40,44 @@ const Timer = () => {
         setSecond(0);
         setMinute(0);
         setHour(0);
+        console.log('Timer Reset')
     }
 
     useEffect( () => {
-        console.log('handling')
+        //console.log('+1 sec')
         timeHandler()
     }, [second, minute, hour])
 
+    useEffect( () => {
+        if (status == 2) {
+            setTimeout( () => {
+                startTimer()
+            }, 10000)
+            
+        } else if (status == 3) {
+            stopTimer()
+        } else if (status == 4) {
+            stopTimer()
+            resetTimer()
+        }
+    }, [status])
+
     return (
-        <SafeAreaView style = {styles.container}>
-            <View>
+        <SafeAreaView style = {styles.componentContainer}>
+            
+            {/* Header */}
+            <View style = {styles.header}>
+                <Text style = {styles.headerText}>Stopwatch</Text>
+            </View>
+            
+            {/* Clock */}
+            <View style = {styles.clockComponent}>
                 <Text style = {styles.header}>
-                    {hour}:{minute}:{second}
+                    {hour} h :{minute} m :{second} s
                 </Text>
             </View>
 
-            <View style = {styles.timerButtons}>
+            {/* <View style = {styles.buttonComponent}>
                 <TouchableOpacity style = {styles.buttons} onPress ={() => {startTimer()} }>
                     <Text style = {styles.header}>START</Text>
                 </TouchableOpacity>
@@ -60,11 +85,11 @@ const Timer = () => {
                 <TouchableOpacity style = {styles.buttons} onPress ={() => {stopTimer()} }>
                     <Text style = {styles.header}>STOP</Text>
                 </TouchableOpacity>
-            </View>
+            </View> */}
 
-            <TouchableOpacity style = {styles.buttons} onPress ={() => {resetTimer()} }>
+            {/* <TouchableOpacity style = {styles.buttons} onPress ={() => {resetTimer()} }>
                 <Text style = {styles.header}>RESET</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
             
             
         </SafeAreaView>
@@ -72,25 +97,35 @@ const Timer = () => {
 };
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        width: 200,
+    componentContainer: {
         flexDirection: 'column',
         justifyContent: 'space-around',
+        alignItems: 'center',
     },
     header: {
-        textAlign: 'center',
+        padding: 10,
     },
-    timerButtons: {
+    headerText: {
+        fontWeight: 'bold',
+    },
+    clockComponent: {
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: 'black',
+        padding: 10,
+    },
+    buttonComponent: {
         flexDirection: 'row',
         justifyContent: 'space-around',
         alignItems: 'center'
     },
-    buttons: {
-        backgroundColor: 'red',
+    button: {
+        backgroundColor: 'white',
+        borderColor: 'black',
+        borderWidth: 1,
+        borderRadius: 5,
         padding: 10,
-
-    }
+    },
 });
 
 export default Timer
