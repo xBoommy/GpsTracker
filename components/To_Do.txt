@@ -1,0 +1,12 @@
+1.
+For GPS tracking, need to add a checker which checks if GPS Location service is still enabled while run function has started.
+    Currently, if GPS Location Service is disabled mid run, there will be no indications but subscription will stop.
+
+2.
+Add Map plotting function
+
+3.
+Data Storage
+
+4.
+Timer improvement [0h : 0m : 0s] to [00 : 00 : 00] 
