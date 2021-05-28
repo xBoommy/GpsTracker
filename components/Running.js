@@ -194,7 +194,7 @@ const Running = (props) => {
     OR when first initiating GPS service */
     useEffect( 
         distanceUpdate
-        , [positions, startLatitude, startLongitude] );
+        , [positions, startLatitude] );
     
     /* [App Status Render] 
     This render is triggered upon a change in app status (Refer to GPS.js for status information) */

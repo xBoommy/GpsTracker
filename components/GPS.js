@@ -25,12 +25,12 @@ const GPS = () => {
         console.log('Foreground Permission Not Granted')
         forePermissionsrequest = await Location.requestForegroundPermissionsAsync()
         if(forePermissionsrequest.granted) {
-          // backPermissionCheck()
+          backPermissionCheck()
           setStatus(1)
         } 
       } else {
         console.log('Foreground Permission already Granted')
-        // backPermissionCheck()
+        backPermissionCheck()
         setStatus(1)
       }
     } catch (error) {
@@ -44,20 +44,20 @@ const GPS = () => {
   https://github.com/expo/expo/tree/master/packages/expo-location
   https://support.google.com/googleplay/android-developer/answer/9799150?hl=en
   */
-  // const backPermissionCheck = async() => {
-  //   try {
-  //     backPermissions = await Location.getBackgroundPermissionsAsync()
-  //     if (!backPermissions.granted){
-  //       console.log('Background Permission Not Granted')
-  //       backPermissionsrequest = await Location.requestBackgroundPermissionsAsync()
-  //     } else {
-  //       console.log('Background Permission already Granted')
-  //     }
-  //   } catch (error) {
-  //     console.log(error)
-  //     console.log('background error')
-  //   }
-  // }
+  const backPermissionCheck = async() => {
+    try {
+      backPermissions = await Location.getBackgroundPermissionsAsync()
+      if (!backPermissions.granted){
+        console.log('Background Permission Not Granted')
+        backPermissionsrequest = await Location.requestBackgroundPermissionsAsync()
+      } else {
+        console.log('Background Permission already Granted')
+      }
+    } catch (error) {
+      console.log(error)
+      console.log('background error')
+    }
+  }
 
 
   useEffect( () => {
