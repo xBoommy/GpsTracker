@@ -1,6 +1,7 @@
 import React from 'react';
-import { SafeAreaView, StyleSheet, Text, View, TouchableOpacity, TextInput, Alert } from 'react-native';
+import { SafeAreaView, StyleSheet, Text, View, TouchableOpacity, TextInput, Alert, ScrollView} from 'react-native';
 import GPS from './components/GPS';
+
 
 
 const App = () => {
@@ -13,6 +14,10 @@ const App = () => {
       <View style = {styles.gps}>
         <GPS/>
       </View>
+
+      {/* <View style = {styles.maps}>
+        <Mapping/>
+      </View> */}
 
       {/* <View style = {styles.buffer}></View> */}
       
@@ -32,11 +37,10 @@ const styles = StyleSheet.create({
     // borderColor: 'purple',
   },
   gps: {
+    // flex: 2,
     // borderWidth: 1,
     // borderColor: 'purple',
   },
-  buffer: {
-  }
 
 });
 
