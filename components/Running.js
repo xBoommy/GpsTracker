@@ -1,7 +1,9 @@
 import React, {useState, useEffect} from 'react';
-import { SafeAreaView, StyleSheet, Text, View, TouchableOpacity, TextInput, Alert } from 'react-native';
+import { SafeAreaView, StyleSheet, Text, View, TouchableOpacity, TextInput, Alert, ScrollView } from 'react-native';
 import * as Location from 'expo-location';
 import * as geolib from 'geolib';
+
+import Mapping from './Mapping';
 
 
 const Running = (props) => {
@@ -231,46 +233,59 @@ const Running = (props) => {
     /          */
     return (
         <SafeAreaView style = {styles.componentContainer}>
+            <ScrollView>
+                    {/* Header */}
+                <View style = {styles.header}>
+                    <Text style = {styles.headerText}>Position</Text>
+                </View>
 
-            {/* Header */}
-            <View style = {styles.header}>
-                <Text style = {styles.headerText}>Position</Text>
-            </View>
+                {/* Position Display */}
+                <View style = {styles.positionDisplay}>
+                        <Text>Prev Latitude: {previousLatitude}</Text>
+                        <Text>Prev Longitude: {previousLongitude}</Text>
+                        <Text></Text>
+                        <Text>Curr Latitude: {currentLatitude}</Text>
+                        <Text>Curr Longitude: {currentLongitude}</Text>
+                </View>
 
-            {/* Position Display */}
-            <View style = {styles.positionDisplay}>
-                    <Text>Prev Latitude: {previousLatitude}</Text>
-                    <Text>Prev Longitude: {previousLongitude}</Text>
-                    <Text></Text>
-                    <Text>Curr Latitude: {currentLatitude}</Text>
-                    <Text>Curr Longitude: {currentLongitude}</Text>
-            </View>
+                {/* Button Component */}
+                <View style = {styles.buttonComponent}>
+                    <TouchableOpacity style = {styles.button} onPress = {() => setStatus(6)}>
+                        <Text>Start</Text>
+                    </TouchableOpacity>
+                    
+                    <TouchableOpacity 
+                    style = {styles.button} onPress = {() => setStatus(3)}>
+                        <Text>Pause</Text>
+                    </TouchableOpacity>
+                </View>
 
-            {/* Button Component */}
-            <View style = {styles.buttonComponent}>
-                <TouchableOpacity style = {styles.button} onPress = {() => setStatus(6)}>
-                    <Text>Start</Text>
-                </TouchableOpacity>
-                
-                <TouchableOpacity 
-                style = {styles.button} onPress = {() => setStatus(3)}>
-                    <Text>Pause</Text>
-                </TouchableOpacity>
-            </View>
+                {/* Distance Indicator */}
+                <View style = {styles.distanceIndicator}>
+                    <Text>{message}</Text>
+                    <Text style = {styles.complete}>
+                        Completed: {currentDistance}m/{goalDistance}m
+                    </Text>
+                </View>
 
-            {/* Distance Indicator */}
-            <View style = {styles.distanceIndicator}>
-                <Text>{message}</Text>
-                <Text style = {styles.complete}>
-                    Completed: {currentDistance}m/{goalDistance}m
-                </Text>
-            </View>
+                {/* Reset/Stop Button */}
+                <View style = {styles.resetcontainer}>
+                    <TouchableOpacity style = {styles.button} onPress = {() => setStatus(4)}>
+                            <Text>Stop</Text>
+                    </TouchableOpacity>
+                </View>
+            </ScrollView>
 
-            {/* Reset/Stop Button */}
-            <View style = {styles.resetcontainer}>
-                <TouchableOpacity style = {styles.button} onPress = {() => setStatus(4)}>
-                        <Text>Stop</Text>
-                </TouchableOpacity>
+            
+
+            <View style = {styles.maps}>
+                <Mapping 
+                    startLatitude = {startLatitude} 
+                    startLongitude = {startLongitude} 
+                    currentLatitude = {currentLatitude}
+                    currentLongitude = {currentLongitude}
+                    status = {status}
+                    />
             </View>
 
         </SafeAreaView>
@@ -279,7 +294,7 @@ const Running = (props) => {
 
 const styles = StyleSheet.create({
     componentContainer: {
-        // backgroundColor: 'purple',
+        backgroundColor: 'purple',
         alignItems: 'center',
     },
     header: {
@@ -327,6 +342,10 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         padding: 10,
     },
+    maps: {
+        // borderWidth: 1,
+        // borderColor: 'purple',
+      },
 })
 
 export default Running;

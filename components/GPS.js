@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import { SafeAreaView, StyleSheet, Text, View, TouchableOpacity, TextInput, Alert } from 'react-native';
+import { SafeAreaView, StyleSheet, Text, View, TouchableOpacity, TextInput, Alert, ScrollView } from 'react-native';
 import * as Location from 'expo-location';
 
 import Running from './Running';
@@ -96,53 +96,55 @@ const GPS = () => {
   return (
     <SafeAreaView style={styles.componentContainer}>
 
-      {/* Header */}
-      <View style = {styles.header}>
-        <Text style = {styles.headerText}>GPS TRACKING DEMO</Text>
-      </View>
-        
-      {/* Status Indicator */}
-      <View style = {styles.statusIndicator}>
-        <Text style = {styles.statusHeading}>Status:</Text>
-        <Text>{statusMessage}</Text>
-      </View>
-      
-      {/* GPS Permissions */}
-      <View style = {styles.gpsPermissionsComponent}>
-        <TouchableOpacity 
-          style = {styles.gpsbutton} 
-          onPress = {forePermissionCheck}>
-
-          <Text>Allow GPS Positioning</Text>
-          
-        </TouchableOpacity>
-      </View>
-
-
-      {/* Goal Setting */}
-      <View style = {styles.goalComponent}>
-        <View>
-          <Text>Target Distance: {goalDistance}m</Text>
+      <ScrollView style = {styles.topComponent}>
+          {/* Header */}
+        <View style = {styles.header}>
+          <Text style = {styles.headerText}>GPS TRACKING DEMO</Text>
         </View>
-        <TextInput
-          style = {styles.input}
-          placeholder = 'Set Target Distance'
-          onChangeText = {(val) => setGoalDistance(val)}
-        />
-      </View>
-      
-      {/* Starting Position Indicator
-      <View>
-        <Text>starting Position</Text>
-        <Text>Lat: {startLatitude}</Text>
-        <Text>Long: {startLongitude}</Text>
-      </View> */}
+          
+        {/* Status Indicator */}
+        <View style = {styles.statusIndicator}>
+          <Text style = {styles.statusHeading}>Status:</Text>
+          <Text>{statusMessage}</Text>
+        </View>
+        
+        {/* GPS Permissions */}
+        <View style = {styles.gpsPermissionsComponent}>
+          <TouchableOpacity 
+            style = {styles.gpsbutton} 
+            onPress = {forePermissionCheck}>
 
-      {/* Timer Component */}
-      <View style = {styles.timerComponent}>
-        <Timer
-        status = {status}/>
-      </View>
+            <Text>Allow GPS Positioning</Text>
+            
+          </TouchableOpacity>
+        </View>
+
+
+        {/* Goal Setting */}
+        <View style = {styles.goalComponent}>
+          <View>
+            <Text>Target Distance: {goalDistance}m</Text>
+          </View>
+          <TextInput
+            style = {styles.input}
+            placeholder = 'Set Target Distance'
+            onChangeText = {(val) => setGoalDistance(val)}
+          />
+        </View>
+        
+        {/* Starting Position Indicator
+        <View>
+          <Text>starting Position</Text>
+          <Text>Lat: {startLatitude}</Text>
+          <Text>Long: {startLongitude}</Text>
+        </View> */}
+
+        {/* Timer Component */}
+        <View style = {styles.timerComponent}>
+          <Timer
+          status = {status}/>
+        </View>
+      </ScrollView>
 
       {/* Running Component */}
       <View style = {styles.runningComponent}>    
@@ -208,13 +210,18 @@ const styles = StyleSheet.create({
     margin: 10,
     width: 150,
   },
+  topComponent: {
+    flex: 2
+  },
   timerComponent: {
     // backgroundColor: 'pink',
+    flex: 1,
     padding: 5,
   },
   runningComponent: {
     // borderColor: 'black', 
     // borderWidth: 1, 
+    flex: 2,
     alignItems: 'center',
     padding: 5, 
   },
