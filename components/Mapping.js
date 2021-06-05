@@ -18,10 +18,10 @@ const Mapping = (props) => {
   useEffect( () => {
     if (status === 2) {
       setMapPositions( (prevMapPositions) => [...prevMapPositions, {latitude:currentLatitude, longitude:currentLongitude}] )
-      console.log('Mappositions')
-      console.log(mapPositions)
+      //console.log('Mappositions')
+      //console.log(mapPositions)
+      console.log('polylining')
     }
-    
   }, [currentLatitude])
 
   return (
